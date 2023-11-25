@@ -3,11 +3,29 @@ using Phonebook.Classes;
 List<string> Preferences = new List<string>(){"favorit", "normalan", "blokiran"};
 Dictionary<Contact, List<Call>> Directory = new Dictionary<Contact, List<Call>>()
 {
-    { new Contact("Ivo Ivić", 0123456789, "Favorit"), new List<Call>() },
-    { new Contact("Marko Markić", 0123456789, "Favorit"), new List<Call>() },
-    { new Contact("Mia Mijić", 0123456789, "Normalan"), new List<Call>() },
-    { new Contact("Lea Leić", 0123456789, "Normalan"), new List<Call>() },
-    { new Contact("Mate Matić", 0123456789, "Blokiran"), new List<Call>() },
+    { new Contact("Ivo Ivić", 0912345678, "Favorit"), new List<Call>()
+    {
+        new Call(new DateTime(2023,10,12,10,30,20), "Završen")
+    } },
+    { new Contact("Marko Markić", 0923456789, "Favorit"), new List<Call>()
+    {
+        {new Call(new DateTime(2023,11,19,22,10,09), "Propušten")},
+        {new Call(new DateTime(2023,9,01,02,39,50), "Završen")}
+    } },
+    { new Contact("Mia Mijić", 0934567890, "Normalan"), new List<Call>()
+    {
+        {new Call(new DateTime(2023,7,22,22,49,22), "Propušten")},
+        {new Call(new DateTime(2023,10,29,12,49,22), "Propušten")},
+        {new Call(new DateTime(2023,9,11,09,39,49), "Završen")}
+    } },
+    { new Contact("Lea Leić", 0945678901, "Normalan"), new List<Call>()
+    {
+        new Call(new DateTime(2023,11,22,11,28,49), "Završen")
+
+    } },
+    { new Contact("Mate Matić", 0956789012, "Blokiran"), new List<Call>()
+    {
+    } },
 
 };
 
@@ -15,10 +33,9 @@ int Option = 1;
 
 while (Option != 0)
 {
-    Console.Clear();
     Console.WriteLine("TELEFONSKI IMENIK:");
     PrintMainMenu();
-    Option = CheckOption(Console.ReadLine());
+    Option = CheckIsOptionInt(Console.ReadLine());
     switch (Option)
     {
         case 1:
@@ -82,13 +99,64 @@ while (Option != 0)
             }
             break;
         case 5:
+            Console.Clear();
+            int optionSubmenu = 1;
+            while (optionSubmenu != 0)
+            {
+                Console.WriteLine("1 - Ispis svih poziva kontakta\n2 - Novi poziv\n3 - Povratak");
+                optionSubmenu = CheckIsSubOptionInt(Console.ReadLine());
+                switch (optionSubmenu)
+                {
+                    case 1:
+                        Console.Clear();
+                        Console.WriteLine("Unesite kontakt čije pozive želite ispisati: ");
+                        PrintContacts();
+                        var searchContact = Console.ReadLine();
+                        while (!CheckContact(searchContact))
+                        {
+                            Console.Clear();
+                            Console.WriteLine("Uneseni kontakt ne postoji u imeniku.");
+                            PrintContacts();
+                            searchContact = Console.ReadLine();
+                        }
+                        Console.WriteLine("Kontakt\t\tVrijeme uspostave\t\tStatus poziva");
+                        PrintCalls(searchContact);
+                        ReturnToMainMessage();
+                        break;
+                    case 2:
+                        Console.Clear();
+                        Console.WriteLine("Novi poziv");
+                        break;
+                    case 3:
+                        optionSubmenu = 0;
+                        Console.Clear();
+                        break;
+                    default:
+                        Console.Clear();
+                        Console.WriteLine("Odaberi jednu od opcija: \n");
+                        break;
+                }
+            }
             break;
         case 6:
+            Console.Clear();
+            Console.WriteLine("SVI POZIVI:");
+            Console.WriteLine("Kontakt\t\tVrijeme uspostave\t\tStatus poziva");
+            foreach (var item in Directory)
+            {
+                PrintCalls(item.Key.NameSurname);
+            }
+            ReturnToMainMessage();
             break;
         case 7:
             Console.Clear();
             Console.WriteLine("Želite li izaći iz aplikacije? (da/ne)");
             if (Confirm(Console.ReadLine())) Option = 0;
+            Console.Clear();
+            break;
+        default:
+            Console.Clear();
+            Console.WriteLine("Odaberi jednu od opcija: \n");
             break;
     } 
 
@@ -101,20 +169,6 @@ void PrintMainMenu()
                       "\n5 - Upravljanje kontaktom\n6 - Ispis svih poziva\n7 - Izlaz iz aplikacije"); 
 }
 
-int CheckOption(string enterOption)
-{
-    int enterParsedOption = CheckIsOptionInt(enterOption);
-    while (enterParsedOption < 1 || enterParsedOption > 7)
-    {
-    
-        Console.Clear();
-        Console.WriteLine("Odaberi jednu od opcija:\n");
-        PrintMainMenu();
-        enterParsedOption = CheckIsOptionInt(Console.ReadLine());
-
-    }
-    return enterParsedOption;
-}
 int CheckIsOptionInt(string enterOption)
 {
     int parsedEnteredOption;
@@ -172,7 +226,7 @@ bool CheckContact(string contactSearch)
     return false;
 }
 
-bool ChangePreference(string editContact)
+void ChangePreference(string editContact)
 {
     foreach (var item in Directory)
     {
@@ -181,18 +235,21 @@ bool ChangePreference(string editContact)
             Console.Clear();
             Console.WriteLine($"Unesite novu preferencu kontakta {item.Key.NameSurname}, trenutna preferenca: {item.Key.setPreference}");
             var newPreference = CheckPreference(Console.ReadLine());
+            if (item.Key.setPreference.ToLower().Equals(newPreference.ToLower()))
+            {
+                Console.WriteLine($"Preferenca kontakta {item.Key.NameSurname} ostaje {item.Key.setPreference}");
+                break;
+            }
             Console.WriteLine($"Potvrdite mijenjane preference kontakta {item.Key.NameSurname} iz {item.Key.setPreference.ToLower()} u {newPreference.ToLower()} (da/ne)");
             if (Confirm(Console.ReadLine()))
             {
                 item.Key.setPreference = newPreference;
                 Console.WriteLine("Promjena uspiješna.");
-                return true;
             }
+            Console.WriteLine($"Preferenca kontakta {item.Key.NameSurname} ostaje {item.Key.setPreference}");
             break;
         }
     }
-
-    return false;
 }
 string CheckPreference(string enterPreference)
 {
@@ -203,4 +260,33 @@ string CheckPreference(string enterPreference)
         enterPreference = Console.ReadLine();
     }
     return enterPreference;
+}
+int CheckIsSubOptionInt(string enterOption)
+{
+    int parsedEnteredOption;
+    while (!int.TryParse(enterOption,out parsedEnteredOption))
+    {
+        Console.Clear();
+        Console.WriteLine("Za odabir opcija unesite broj.\n");
+        Console.WriteLine("1 - Ispis svih poziva\n2 - Novi poziv\n3 - Povratak");
+        enterOption = Console.ReadLine();
+    }
+
+    return parsedEnteredOption;
+}
+
+void PrintCalls(string searchedContact)
+{
+    foreach (var item in Directory)
+    {
+        if (item.Key.NameSurname.ToLower().Equals(searchedContact.ToLower()))
+        {
+            var sortedCalls = item.Value.OrderByDescending(call => call.Time);
+            
+            foreach (var call in sortedCalls)
+            {
+                Console.WriteLine($"{item.Key.NameSurname}\t{call.ToString()}");
+            }
+        }
+    }
 }

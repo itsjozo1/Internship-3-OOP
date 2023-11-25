@@ -3,13 +3,11 @@ namespace Phonebook.Classes;
 public class Call
 {
     List<string> Status = new List<string>(){"u tijeku", "propušten", "završen"};
-    public Guid Id { get; }
     public DateTime Time { get; }
     public string setStatus { get; set; }
 
     public Call(DateTime time, string status)
     {
-        Id = new Guid();
         Time = time;
         setStatus = CheckStatus(status);
     }
@@ -22,5 +20,11 @@ public class Call
         }
 
         return enterStatus;
+    }
+
+    public override string ToString()
+    {
+        string output = $"{Time:dd-MM-yyyy hh:mm:ss}\t\t{setStatus}";
+        return output;
     }
 }

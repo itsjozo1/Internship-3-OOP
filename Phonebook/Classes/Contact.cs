@@ -75,7 +75,7 @@ public class Contact
         int parseNumber;
         while (!int.TryParse(enterNumber, out parseNumber)) 
         {
-            Console.WriteLine("Broj mora sadržavati samo brojeve: ");
+            Console.WriteLine("Broj telefona mora sadržavati samo brojeve: ");
             enterNumber = Console.ReadLine();
         }
 
