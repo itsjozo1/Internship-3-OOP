@@ -1,5 +1,6 @@
 ﻿
 using Phonebook.Classes;
+
 List<string> Preferences = new List<string>(){"favorit", "normalan", "blokiran"};
 Dictionary<Contact, List<Call>> Directory = new Dictionary<Contact, List<Call>>()
 {
@@ -23,10 +24,7 @@ Dictionary<Contact, List<Call>> Directory = new Dictionary<Contact, List<Call>>(
         new Call(new DateTime(2023,11,22,11,28,49), "Završen")
 
     } },
-    { new Contact("Mate Matić", 0956789012, "Blokiran"), new List<Call>()
-    {
-    } },
-
+    { new Contact("Mate Matić", 0956789012, "Blokiran"), new List<Call>()}
 };
 
 int Option = 1;
@@ -41,12 +39,12 @@ while (Option != 0)
         case 1:
             Console.Clear();
             PrintContacts();
-            ReturnToMainMessage();
+            ReturnMessage();
             break;
         case 2:
             Console.Clear();
             Directory.Add(new Contact(Directory), new List<Call>());
-            ReturnToMainMessage();
+            ReturnMessage();
             break;
         case 3:
             Console.Clear();
@@ -71,7 +69,7 @@ while (Option != 0)
                             Console.WriteLine($"Kontakt {item.Key.NameSurname} uspiješno izbrisan.");
                             Directory.Remove(item.Key); 
                         }
-                        ReturnToMainMessage();
+                        ReturnMessage();
                         Console.Clear();
                         exit = true;
                     }
@@ -93,7 +91,7 @@ while (Option != 0)
                 else
                 {
                     ChangePreference(editContact);
-                    ReturnToMainMessage();
+                    ReturnMessage();
                     break;
                 }
             }
@@ -111,21 +109,34 @@ while (Option != 0)
                         Console.Clear();
                         Console.WriteLine("Unesite kontakt čije pozive želite ispisati: ");
                         PrintContacts();
-                        var searchContact = Console.ReadLine();
-                        while (!CheckContact(searchContact))
-                        {
-                            Console.Clear();
-                            Console.WriteLine("Uneseni kontakt ne postoji u imeniku.");
-                            PrintContacts();
-                            searchContact = Console.ReadLine();
-                        }
+                        var searchContact = SearchContact(Console.ReadLine());
+                        Console.Clear();
                         Console.WriteLine("Kontakt\t\tVrijeme uspostave\t\tStatus poziva");
                         PrintCalls(searchContact);
-                        ReturnToMainMessage();
+                        ReturnMessage();
                         break;
                     case 2:
                         Console.Clear();
-                        Console.WriteLine("Novi poziv");
+                        Console.WriteLine("Za uputiti novi poziv unesite kontakt za biranje: ");
+                        PrintContacts();
+                        var newCallContact = SearchContact(Console.ReadLine());
+                        if (IsBlocked(newCallContact))
+                        {
+                            Console.Clear();
+                            Console.WriteLine($"Kontakt {newCallContact} je blokiran nije moguće uspostaviti poziv.");
+                            ReturnMessage();
+                            break;
+                        }
+                        Console.Clear();
+                        Console.WriteLine($"Pozivanje kontakta {newCallContact}...\n");
+                        foreach (var item in Directory)
+                        {
+                            if (item.Key.NameSurname.ToLower().Equals(newCallContact.ToLower()))
+                            {
+                                item.Value.Add(new Call(Directory));
+                            }
+                        }
+                        ReturnMessage();
                         break;
                     case 3:
                         optionSubmenu = 0;
@@ -146,7 +157,7 @@ while (Option != 0)
             {
                 PrintCalls(item.Key.NameSurname);
             }
-            ReturnToMainMessage();
+            ReturnMessage();
             break;
         case 7:
             Console.Clear();
@@ -207,8 +218,8 @@ void PrintContacts()
         Console.WriteLine(item.Key.ToString());
     }
 }
-void ReturnToMainMessage(){
-    Console.WriteLine("Povratak na glavni izbornik (enter)");
+void ReturnMessage(){
+    Console.WriteLine("Za povratak na izbornik pritisnite enter");
     Console.ReadKey();
     Console.Clear();
 }
@@ -289,4 +300,32 @@ void PrintCalls(string searchedContact)
             }
         }
     }
+}
+
+bool IsBlocked(string enterContact)
+{
+    foreach (var item in Directory)
+    {
+        if (item.Key.NameSurname.ToLower().Equals(enterContact.ToLower()))
+        {
+            if (item.Key.setPreference.Equals("Blokiran"))
+            {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+string SearchContact(string enterContact)
+{
+    while (!CheckContact(enterContact))
+    {
+        Console.Clear();
+        Console.WriteLine("Uneseni kontakt ne postoji u imeniku.");
+        PrintContacts();
+        enterContact = Console.ReadLine();
+    }
+
+    return enterContact;
 }
