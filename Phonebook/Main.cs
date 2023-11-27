@@ -29,7 +29,7 @@ Dictionary<Contact, List<Call>> Directory = new Dictionary<Contact, List<Call>>(
 
 int Option = 1;
 
-while (Option != 0)
+while (true)
 {
     Console.WriteLine("TELEFONSKI IMENIK:");
     PrintMainMenu();
@@ -48,31 +48,21 @@ while (Option != 0)
             break;
         case 3:
             Console.Clear();
-            bool exit = false;
-            while (exit == false)
+            while (true)
             {
-                Console.WriteLine("Unesite ime i prezime kontakta koji želite izbrisati: ");
+                Console.WriteLine("Pretražite kontakt kojem želite mijenjati preferencu: ");
                 PrintContacts();
                 var deleteContact = Console.ReadLine();
-                foreach (var item in Directory)
+                if (!CheckContact(deleteContact))
                 {
-                    if (!item.Key.NameSurname.ToLower().Equals(deleteContact.ToLower()))
-                    {
-                        Console.Clear();
-                        Console.WriteLine($"Kontakt {deleteContact} ne postoji u imeniku. ");
-                    }
-                    else
-                    {
-                        Console.WriteLine("Želite li izbrisati kontakt (da/ne): \n" + item.Key);
-                        if (Confirm(Console.ReadLine()))
-                        {
-                            Console.WriteLine($"Kontakt {item.Key.NameSurname} uspiješno izbrisan.");
-                            Directory.Remove(item.Key); 
-                        }
-                        ReturnMessage();
-                        Console.Clear();
-                        exit = true;
-                    }
+                    Console.Clear();
+                    Console.WriteLine($"Kontakt {deleteContact} ne postoji u imeniku.");
+                }
+                else
+                {
+                    DeleteContact(deleteContact);
+                    ReturnMessage();
+                    break;
                 }
             }
             break;
@@ -80,7 +70,7 @@ while (Option != 0)
             Console.Clear();
             while (true)
             {
-                Console.WriteLine("Pretražite kontakt kojem želite mijenjati preferencu: ");
+                Console.WriteLine("Pretražite kontak koji želite izbrisati: ");
                 PrintContacts();
                 var editContact = Console.ReadLine();
                 if (!CheckContact(editContact))
@@ -90,7 +80,6 @@ while (Option != 0)
                 }
                 else
                 {
-                    ChangePreference(editContact);
                     ReturnMessage();
                     break;
                 }
@@ -145,7 +134,7 @@ while (Option != 0)
                     default:
                         Console.Clear();
                         Console.WriteLine("Odaberi jednu od opcija: \n");
-                        break;
+                        return;
                 }
             }
             break;
@@ -162,7 +151,7 @@ while (Option != 0)
         case 7:
             Console.Clear();
             Console.WriteLine("Želite li izaći iz aplikacije? (da/ne)");
-            if (Confirm(Console.ReadLine())) Option = 0;
+            if (Confirm(Console.ReadLine())) return;
             Console.Clear();
             break;
         default:
@@ -258,6 +247,23 @@ void ChangePreference(string editContact)
                 Console.WriteLine("Promjena uspiješna.");
             }
             Console.WriteLine($"Preferenca kontakta {item.Key.NameSurname} ostaje {item.Key.setPreference}");
+            break;
+        }
+    }
+}
+void DeleteContact(string editContact)
+{
+    foreach (var item in Directory)
+    {
+        if (item.Key.NameSurname.ToLower().Equals(editContact.ToLower()))
+        {
+            Console.Clear();
+            Console.WriteLine($"Potvrdite brisanje kontakta {item.Key.NameSurname} (da/ne)");
+            if (Confirm(Console.ReadLine()))
+            {
+                Directory.Remove(item.Key);
+                Console.WriteLine("Promjena uspiješna.");
+            }
             break;
         }
     }
